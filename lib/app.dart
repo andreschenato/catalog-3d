@@ -1,3 +1,4 @@
+import 'package:catalog_3d/core/routes/router.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
@@ -5,8 +6,12 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Center(child: Text("Catalog 3D"))),
+    return MaterialApp.router(
+      title: 'Catalog 3D',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      routerConfig: router,
     );
   }
 }
