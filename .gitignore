@@ -44,4 +44,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-mock*
+**/mock*
+
+**/firebase.json
+**/firebase_options.dart
+**/GoogleService-Info.plist
+**/google-services.json
+
+**/.env
