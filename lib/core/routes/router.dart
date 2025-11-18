@@ -1,4 +1,5 @@
 import 'package:catalog_3d/features/item/view/create_item.dart';
+import 'package:catalog_3d/features/item/view/edit_item.dart';
 import 'package:catalog_3d/features/item/view/item_list.dart';
 import 'package:catalog_3d/features/item/view/view_item.dart';
 import 'package:flutter/material.dart';
@@ -18,14 +19,21 @@ final GoRouter router = GoRouter(
             return const CreateItem();
           },
         ),
+        GoRoute(
+          path: '/details/:itemId',
+          builder: (context, state) {
+            final itemId = state.pathParameters['itemId'];
+            return ViewItem(itemId: itemId!);
+          },
+        ),
+        GoRoute(
+          path: '/edit/:itemId',
+          builder: (context, state) {
+            final itemId = state.pathParameters['itemId'];
+            return EditItem(itemId: itemId!);
+          },
+        ),
       ],
-    ),
-    GoRoute(
-      path: '/details/:itemId',
-      builder: (context, state) {
-        final itemId = state.pathParameters['itemId'];
-        return ViewItem(itemId: itemId!);
-      },
     ),
   ],
 );

@@ -3,11 +3,17 @@ import 'package:catalog_3d/core/widgets/item_card.dart';
 import 'package:catalog_3d/features/item/data/source/firebase_item_source.dart';
 import 'package:catalog_3d/features/item/data/model/item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 
-class ItemList extends StatelessWidget {
+class ItemList extends StatefulWidget {
   const ItemList({super.key});
 
+  @override
+  State<ItemList> createState() => _ItemListState();
+}
+
+class _ItemListState extends State<ItemList> {
   @override
   Widget build(BuildContext context) {
     FirebaseItemSource source = FirebaseItemSource();
@@ -33,12 +39,38 @@ class ItemList extends StatelessWidget {
             return CustomList(
               items: items
                   .map(
-                    (item) => ItemCard(
-                      name: item.name,
-                      price: item.finalPrice,
-                      onPressed: () {
-                        context.go("/details/${item.id}");
-                      },
+                    (item) => Slidable(
+                      endActionPane: ActionPane(
+                        motion: const ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) {
+                              context.go("/edit/${item.id}");
+                            },
+                            backgroundColor: const Color(0xFF7BC043),
+                            foregroundColor: Colors.white,
+                            icon: Icons.edit,
+                            label: 'Edit',
+                          ),
+                          SlidableAction(
+                            onPressed: (context) async {
+                              await source.deleteItem(item.id!);
+                            },
+                            backgroundColor: Colors.redAccent,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete,
+                            label: 'Delete',
+                          ),
+                        ],
+                      ),
+
+                      child: ItemCard(
+                        name: item.name,
+                        price: item.finalPrice,
+                        onPressed: () {
+                          context.go("/details/${item.id}");
+                        },
+                      ),
                     ),
                   )
                   .toList(),

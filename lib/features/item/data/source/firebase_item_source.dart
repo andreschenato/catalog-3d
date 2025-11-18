@@ -8,6 +8,10 @@ class FirebaseItemSource {
     await _firestore.collection('items').add(item.toJson());
   }
 
+  Future<void> updateItem(Item item) async {
+    await _firestore.collection('items').doc(item.id).update(item.toJson());
+  }
+
   Future<List<Item>> listItems() async {
     var items = await _firestore.collection('items').get();
 
@@ -24,6 +28,13 @@ class FirebaseItemSource {
       return null;
     }
 
-    return Item.fromJson(item.data()!);
+    Item itemData = Item.fromJson(item.data()!);
+    itemData.id = item.id;
+
+    return itemData;
+  }
+
+  Future<void> deleteItem(String id) async {
+    await _firestore.collection('items').doc(id).delete();
   }
 }
