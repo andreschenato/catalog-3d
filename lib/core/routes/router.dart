@@ -1,4 +1,5 @@
-import 'package:catalog_3d/features/item/item_list.dart';
+import 'package:catalog_3d/features/item/view/create_item.dart';
+import 'package:catalog_3d/features/item/view/item_list.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,14 +10,14 @@ final GoRouter router = GoRouter(
       builder: (BuildContext context, GoRouterState state) {
         return const ItemList();
       },
-      // routes: <RouteBase>[
-      //   GoRoute(
-      //     path: 'details',
-      //     builder: (BuildContext context, GoRouterState state) {
-      //       return const ItemDetails();
-      //     },
-      //   ),
-      // ],
+      routes: <RouteBase>[
+        GoRoute(
+          path: 'create_item',
+          builder: (BuildContext context, GoRouterState state) {
+            return const CreateItem();
+          },
+        ),
+      ],
     ),
   ],
 );
