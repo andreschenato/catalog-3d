@@ -14,14 +14,33 @@ class ItemList extends StatefulWidget {
 }
 
 class _ItemListState extends State<ItemList> {
+  FirebaseItemSource source = FirebaseItemSource();
+
+  late Future<List<Item>> _itemsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _itemsFuture = source.listItems();
+  }
+
+  void _refreshItems() {
+    setState(() {
+      _itemsFuture = source.listItems();
+    });
+  }
+
+  void _deleteItem(String itemId) async {
+    await source.deleteItem(itemId);
+    _refreshItems();
+  }
+
   @override
   Widget build(BuildContext context) {
-    FirebaseItemSource source = FirebaseItemSource();
-
     return Scaffold(
       appBar: AppBar(title: const Center(child: Text("Items"))),
       body: FutureBuilder<List<Item>>(
-        future: source.listItems(),
+        future: _itemsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -44,8 +63,9 @@ class _ItemListState extends State<ItemList> {
                         motion: const ScrollMotion(),
                         children: [
                           SlidableAction(
-                            onPressed: (context) {
-                              context.go("/edit/${item.id}");
+                            onPressed: (context) async {
+                              await context.push("/edit/${item.id}");
+                              _refreshItems();
                             },
                             backgroundColor: const Color(0xFF7BC043),
                             foregroundColor: Colors.white,
@@ -54,7 +74,7 @@ class _ItemListState extends State<ItemList> {
                           ),
                           SlidableAction(
                             onPressed: (context) async {
-                              await source.deleteItem(item.id!);
+                              _deleteItem(item.id!);
                             },
                             backgroundColor: Colors.redAccent,
                             foregroundColor: Colors.white,
@@ -67,8 +87,8 @@ class _ItemListState extends State<ItemList> {
                       child: ItemCard(
                         name: item.name,
                         price: item.finalPrice,
-                        onPressed: () {
-                          context.go("/details/${item.id}");
+                        onPressed: () async {
+                          await context.push("/details/${item.id}");
                         },
                       ),
                     ),
@@ -82,8 +102,9 @@ class _ItemListState extends State<ItemList> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () {
-          context.go('/create_item');
+        onPressed: () async {
+          await context.push('/create_item');
+          _refreshItems();
         },
       ),
     );
