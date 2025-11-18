@@ -7,4 +7,23 @@ class FirebaseItemSource {
   Future<void> createItem(Item item) async {
     await _firestore.collection('items').add(item.toJson());
   }
+
+  Future<List<Item>> listItems() async {
+    var items = await _firestore.collection('items').get();
+
+    return items.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return Item.fromJson(data);
+    }).toList();
+  }
+
+  Future<Item?> getItem(String id) async {
+    var item = await _firestore.collection('items').doc(id).get();
+    if (!item.exists || item.data() == null) {
+      return null;
+    }
+
+    return Item.fromJson(item.data()!);
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:catalog_3d/features/item/view/create_item.dart';
 import 'package:catalog_3d/features/item/view/item_list.dart';
+import 'package:catalog_3d/features/item/view/view_item.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -18,6 +19,13 @@ final GoRouter router = GoRouter(
           },
         ),
       ],
+    ),
+    GoRoute(
+      path: '/details/:itemId',
+      builder: (context, state) {
+        final itemId = state.pathParameters['itemId'];
+        return ViewItem(itemId: itemId!);
+      },
     ),
   ],
 );
