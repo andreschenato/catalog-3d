@@ -16,6 +16,8 @@ class CreateItem extends StatefulWidget {
 }
 
 class _CreateItemState extends State<CreateItem> {
+  final _formKey = GlobalKey<FormState>();
+
   final name = TextEditingController();
   final printingTime = TextEditingController();
   final weight = TextEditingController();
@@ -172,6 +174,38 @@ class _CreateItemState extends State<CreateItem> {
     _isUpdating = false;
   }
 
+  String? _validateRequired(String? value) {
+    if (value == null || value.isEmpty || _parse(value) == 0) {
+      return 'This field is required!';
+    }
+    return null;
+  }
+
+  void _saveItem() {
+    if (_formKey.currentState?.validate() ?? false) {
+      _source
+          .createItem(
+            Item(
+              name: name.text,
+              printingTime: _parse(printingTime.text),
+              weight: _parse(weight.text),
+              kgCost: _parse(kgCost.text),
+              markup: _parse(markup.text),
+              finalPrice: _parse(finalPrice.text),
+              totalCost: _parse(totalCost.text),
+              printerPower: _parse(printerPower.text),
+              kwhCost: _parse(kwhCost.text),
+              printerPrice: _parse(printerPrice.text),
+              lifeTime: _parse(lifeTime.text),
+              failPercentage: _parse(failPercentage.text),
+            ),
+          )
+          .then((_) {
+            if (mounted) context.pop();
+          });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,15 +214,28 @@ class _CreateItemState extends State<CreateItem> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
         child: SingleChildScrollView(
           child: Form(
+            key: _formKey,
             child: Column(
               spacing: 20,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SectionTitle("Model information"),
-                Input(controller: name, label: "Name"),
+                Input(
+                  controller: name,
+                  label: "Name",
+                  validator: (v) => v!.isEmpty ? 'Name is required' : null,
+                ),
                 DoubleInput(
-                  Input(controller: printingTime, label: "Printing Time"),
-                  Input(controller: weight, label: "Item Weight"),
+                  Input(
+                    controller: printingTime,
+                    label: "Printing Time",
+                    validator: _validateRequired,
+                  ),
+                  Input(
+                    controller: weight,
+                    label: "Item Weight",
+                    validator: _validateRequired,
+                  ),
                 ),
 
                 const SectionTitle("Costs"),
@@ -198,6 +245,7 @@ class _CreateItemState extends State<CreateItem> {
                     isCurrency: false,
                     controller: kgCost,
                     label: "Cost/Kg",
+                    validator: _validateRequired,
                   ),
                   Input(
                     controller: itemCost,
@@ -208,8 +256,14 @@ class _CreateItemState extends State<CreateItem> {
                 ),
                 const SubTitle("Printer"),
                 DoubleInput(
-                  Input(controller: printerPower, label: "Printer Power"),
-                  Input(controller: kwhCost, label: "Kw/H Cost"),
+                  Input(
+                    controller: printerPower,
+                    label: "Printer Power",
+                  ),
+                  Input(
+                    controller: kwhCost,
+                    label: "Kw/H Cost",
+                  ),
                 ),
                 Input(
                   controller: energyCost,
@@ -217,11 +271,20 @@ class _CreateItemState extends State<CreateItem> {
                   readOnly: true,
                   isCurrency: false,
                 ),
-                Input(controller: failPercentage, label: "Fail Percentage"),
+                Input(
+                  controller: failPercentage,
+                  label: "Fail Percentage",
+                ),
                 const SubTitle("Printer Arrangement"),
                 DoubleInput(
-                  Input(controller: printerPrice, label: "Printer Price"),
-                  Input(controller: lifeTime, label: "Printer Lifetime"),
+                  Input(
+                    controller: printerPrice,
+                    label: "Printer Price",
+                  ),
+                  Input(
+                    controller: lifeTime,
+                    label: "Printer Lifetime",
+                  ),
                 ),
                 Input(
                   controller: arrangement,
@@ -238,13 +301,18 @@ class _CreateItemState extends State<CreateItem> {
                     readOnly: true,
                     isCurrency: false,
                   ),
-                  Input(controller: markup, label: "Markup"),
+                  Input(
+                    controller: markup,
+                    label: "Markup",
+                    validator: _validateRequired,
+                  ),
                 ),
                 DoubleInput(
                   Input(
                     controller: finalPrice,
                     label: "Final Price",
                     isCurrency: false,
+                    validator: _validateRequired,
                   ),
                   Input(
                     controller: profit,
@@ -279,28 +347,5 @@ class _CreateItemState extends State<CreateItem> {
         ),
       ),
     );
-  }
-
-  void _saveItem() {
-    _source
-        .createItem(
-          Item(
-            name: name.text,
-            printingTime: _parse(printingTime.text),
-            weight: _parse(weight.text),
-            kgCost: _parse(kgCost.text),
-            markup: _parse(markup.text),
-            finalPrice: _parse(finalPrice.text),
-            totalCost: _parse(totalCost.text),
-            printerPower: _parse(printerPower.text),
-            kwhCost: _parse(kwhCost.text),
-            printerPrice: _parse(printerPrice.text),
-            lifeTime: _parse(lifeTime.text),
-            failPercentage: _parse(failPercentage.text),
-          ),
-        )
-        .then((_) {
-          if (mounted) context.pop();
-        });
   }
 }

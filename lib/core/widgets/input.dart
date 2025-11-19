@@ -9,17 +9,20 @@ class Input extends StatelessWidget {
   final bool readOnly;
   final bool isCurrency;
 
+  final String? Function(String?)? validator;
+
   const Input({
     super.key,
     required this.controller,
     required this.label,
     this.readOnly = false,
     this.isCurrency = false,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    TextInputType keyboardType = TextInputType.number;
+    TextInputType keyboardType = TextInputType.text;
     List<TextInputFormatter> formatters = [];
     InputDecoration decoration = formDecoration(label);
 
@@ -28,9 +31,8 @@ class Input extends StatelessWidget {
       formatters.add(RealInputFormatter(moeda: true));
 
       if (readOnly && controller.text.isEmpty) {
-          decoration = decoration.copyWith(prefixText: 'R\$ ');
+        decoration = decoration.copyWith(prefixText: 'R\$ ');
       }
-
     } else if (label != "Name" && !readOnly) {
       formatters.add(FilteringTextInputFormatter.allow(RegExp(r'[\d.]')));
       keyboardType = const TextInputType.numberWithOptions(decimal: true);
@@ -40,10 +42,12 @@ class Input extends StatelessWidget {
 
     return TextFormField(
       controller: controller,
-      decoration: decoration, 
+      decoration: decoration,
       readOnly: readOnly,
       keyboardType: keyboardType,
       inputFormatters: formatters.isNotEmpty ? formatters : null,
+
+      validator: validator,
     );
   }
 }

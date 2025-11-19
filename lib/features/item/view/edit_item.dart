@@ -18,6 +18,8 @@ class EditItem extends StatefulWidget {
 }
 
 class _EditItemState extends State<EditItem> {
+  final _formKey = GlobalKey<FormState>();
+
   final name = TextEditingController();
   final printingTime = TextEditingController();
   final weight = TextEditingController();
@@ -218,68 +220,91 @@ class _EditItemState extends State<EditItem> {
     _isUpdating = false;
   }
 
-  void _updateItem() {
-    if (_currentItem?.id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Cannot update: Item ID is missing.')),
-      );
-      return;
+  String? _validateRequired(String? value) {
+    if (value == null || value.isEmpty || _parse(value) == 0) {
+      return 'This field is required!';
     }
+    return null;
+  }
 
-    final updatedItem = Item(
-      id: _currentItem!.id,
-      name: name.text,
-      printingTime: _parse(printingTime.text),
-      weight: _parse(weight.text),
-      kgCost: _parse(kgCost.text),
-      markup: _parse(markup.text),
-      finalPrice: _parse(finalPrice.text),
-      totalCost: _parse(totalCost.text),
-      printerPower: _parse(printerPower.text),
-      kwhCost: _parse(kwhCost.text),
-      printerPrice: _parse(printerPrice.text),
-      lifeTime: _parse(lifeTime.text),
-      failPercentage: _parse(failPercentage.text),
-    );
+  void _updateItem() {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (_currentItem?.id == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cannot update: Item ID is missing.')),
+        );
+        return;
+      }
 
-    _source
-        .updateItem(updatedItem)
-        .then((_) {
-          if (mounted) context.pop();
-        })
-        .catchError((e) {
-          if (mounted) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Update failed: $e')));
-          }
-        });
+      final updatedItem = Item(
+        id: _currentItem!.id,
+        name: name.text,
+        printingTime: _parse(printingTime.text),
+        weight: _parse(weight.text),
+        kgCost: _parse(kgCost.text),
+        markup: _parse(markup.text),
+        finalPrice: _parse(finalPrice.text),
+        totalCost: _parse(totalCost.text),
+        printerPower: _parse(printerPower.text),
+        kwhCost: _parse(kwhCost.text),
+        printerPrice: _parse(printerPrice.text),
+        lifeTime: _parse(lifeTime.text),
+        failPercentage: _parse(failPercentage.text),
+      );
+
+      _source
+          .updateItem(updatedItem)
+          .then((_) {
+            if (mounted) context.pop();
+          })
+          .catchError((e) {
+            if (mounted) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Update failed: $e')));
+            }
+          });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: Text('Loading Item...')),
-        body: Center(child: CircularProgressIndicator()),
+        appBar: AppBar(title: const Text('Loading Item...')),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Item')),
+      appBar: AppBar(title: const Text('Edit Item')),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 36),
         child: SingleChildScrollView(
           child: Form(
+            autovalidateMode: AutovalidateMode.always,
+            key: _formKey,
             child: Column(
               spacing: 20,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SectionTitle("Model information"),
-                Input(controller: name, label: "Name"),
+                Input(
+                  controller: name,
+                  label: "Name",
+                  validator: (v) => v!.isEmpty ? 'Name is required' : null,
+                ),
                 DoubleInput(
-                  Input(controller: printingTime, label: "Printing Time"),
-                  Input(controller: weight, label: "Item Weight"),
+                  Input(
+                    controller: printingTime,
+                    label: "Printing Time",
+                    validator: _validateRequired,
+                  ),
+                  Input(
+                    controller: weight,
+                    label: "Item Weight",
+                    validator: _validateRequired,
+                  ),
                 ),
 
                 const SectionTitle("Costs"),
@@ -289,6 +314,7 @@ class _EditItemState extends State<EditItem> {
                     isCurrency: false,
                     controller: kgCost,
                     label: "Cost/Kg",
+                    validator: _validateRequired,
                   ),
                   Input(
                     controller: itemCost,
@@ -329,13 +355,18 @@ class _EditItemState extends State<EditItem> {
                     readOnly: true,
                     isCurrency: false,
                   ),
-                  Input(controller: markup, label: "Markup"),
+                  Input(
+                    controller: markup,
+                    label: "Markup",
+                    validator: _validateRequired,
+                  ),
                 ),
                 DoubleInput(
                   Input(
                     controller: finalPrice,
                     label: "Final Price",
                     isCurrency: false,
+                    validator: _validateRequired,
                   ),
                   Input(
                     controller: profit,
